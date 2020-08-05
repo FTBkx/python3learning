@@ -1,0 +1,60 @@
+#Now, you’ll put it all together. Don’t forget to copy all of the functions that you have previously defined into this code window. Define a function get_sorted_recommendations. It takes a list of movie titles as an input. It returns a sorted list of related movie titles as output, up to five related movies for each input movie title. The movies should be sorted in descending order by their Rotten Tomatoes rating, as returned by the get_movie_rating function. Break ties in reverse alphabetic order, so that ‘Yahşi Batı’ comes before ‘Eyyvah Eyvah’.
+
+
+import requests_with_caching
+import json
+
+movietitle = []
+def get_movies_from_tastedive(n):
+    baseurl = 'https://tastedive.com/api/similar'
+    params_diction = {}
+    params_diction["q"] = n 
+    params_diction["limit"] = 5
+    params_diction["type"] = "movies"
+    tastedive = requests_with_caching.get(baseurl, params = params_diction)
+    return tastedive.json()
+
+def extract_movie_titles(n):
+    for i in n['Similar']['Results']:    
+        movietitle.append(i['Name'])
+    return movietitle
+
+def get_related_titles(lst):
+    relatemovies = []
+    for l in lst:
+        relate = extract_movie_titles(get_movies_from_tastedive(l))
+        for r in relate:
+            if r not in relatemovies:    
+                relatemovies.append(r)
+    return relatemovies
+
+def get_movie_data(name):
+    baseurl = 'http://www.omdbapi.com/'
+    diction = {}
+    diction["t"] = name
+    diction["r"] = "json"
+    res = requests_with_caching.get(baseurl, params = diction)
+    resj = res.json()
+    return resj
+
+def get_movie_rating(resj):   
+    for i in resj['Ratings']:
+        if i['Source'] == 'Rotten Tomatoes':
+            rate = int(i['Value'][0:2])
+            break
+        else:
+            rate = 0
+    return rate
+
+###########################################################################################################
+# I didn't expect we need to retrive the related movie names from Tastedive and Omdbapi dosen't really support related movies recommendation.
+###########################################################################################################
+def get_sorted_recommendations(lst):
+    d = {}
+    for i in get_related_titles(lst):
+        res = get_movie_rating(get_movie_data(i))
+        d[i] = res
+    result = sorted(d.keys(), key = lambda x: (d[x], x), reverse = True)
+    print(get_related_titles(lst))
+    print(d)
+    return result
