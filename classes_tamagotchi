@@ -1,3 +1,9 @@
+########################################################
+
+#This bunch of code is created by University of Michigan.
+
+########################################################
+
 from random import randrange
 
 class Pet():
