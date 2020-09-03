@@ -78,4 +78,7 @@ plt.show()
 dist_matrix = distance_matrix(X1,X1) 
 print(dist_matrix)
 
+Z = hierarchy.linkage(dist_matrix, 'complete')
+
+dendro = hierarchy.dendrogram(Z)
 
